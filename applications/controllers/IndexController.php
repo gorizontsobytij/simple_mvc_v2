@@ -10,12 +10,12 @@ class IndexController extends core\Controller
     public function __construct() {}
 
     private $_filtered_auth_data = [];
+    private $_valid;
 
     public function IndexAction()
     {
         parent::IndexAction();
         $this->checkAuth();
-        $this->getAuth();
     }
 
     public function checkAuth()
@@ -23,7 +23,7 @@ class IndexController extends core\Controller
         //var_dump($_POST);
         $data_filter = [];
         $validation = new lib\Validator();
-        $valid = $validation->checkData($_POST, [
+        $this->_valid = $validation->checkData($_POST, [
             "login" => [
                 'required' => true,
                 'min' => 3,
@@ -47,35 +47,20 @@ class IndexController extends core\Controller
          * с базой данных
          */
         try {
-            if ($valid !==false) throw new \Exception('Данные не прошли валидацию');
-            $filter = new lib\Filter();
-            $this->_filtered_auth_data = $filter->dataFiltration($_POST);
+            if ($this->_valid == false) throw new \Exception('Данные не прошли валидацию');
+            else {
+                $filter = new lib\Filter();
+                $this->_filtered_auth_data = $filter->dataFiltration($_POST);
+                $search = new models\IndexModel();
+                if ($search->searchLogSQL($this->_filtered_auth_data) === true)
+                    echo "Привет " .$this->_filtered_auth_data['login'];//тут конечно же придумать что-то поумнее
+
+            }
         } catch (\Exception $exception) {
             echo 'Возникла ошибка' . $exception->getMessage();
         }
-        /*if ($valid !==false){
-            $filter = new lib\Filter();
-            $this->_filtered_auth_data = $filter->dataFiltration($_POST);
-            //$insert = new IndexModel();
-            //$insert->searchLogin($auth_data_filter);
-           //if ($insert->searchLogin($auth_data_filter) ===true ){
-               //$_SESSION['login'] = $auth_data_filter['login'];
-              // var_dump($_SESSION['login']);
-           }
-        }*/
     }
 
-    private function getAuth()
-    {
-        $select = new models\IndexModel();
-        //$select->searchLogSQL($_POST);
-        $select->searchLogSQL($this->_filtered_auth_data);
-        var_dump($this->_filtered_auth_data);
-        //$input = new lib\Input();
-        //var_dump($input->type_data);
-
-    }
-
-
+    //Дальше нужно довавить сессии и куки
 
 }
