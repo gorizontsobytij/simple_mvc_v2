@@ -9,30 +9,12 @@ class IndexModel extends Model
 {
     private $_link;
 
+    public $login, $password;
+
     public function __construct()
     {
         $this->_link = core\ConnectDB::getLink();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*-----------------------------------------------------------------------------------------------
  * Функция ищет данные в базе если находит совпадение - возвращает true, иначе выводит исключение
@@ -40,21 +22,16 @@ class IndexModel extends Model
  -----------------------------------------------------------------------------------------------*/
     public function searchLogSQL($data)
     {
-
         $login = $data['login'] ?? '';
         $password = $data['password'] ?? '';
-
+        //$password .=255;
+        //var_dump($password);
         $sql = $this->_link->prepare("SELECT login, password 
                                                 FROM mvc_v2.users WHERE login = '$login' AND password = '$password' ");
         $sql->execute();
         $searching = $sql->fetch(\PDO::FETCH_ASSOC);
-        
-        if ($login === $searching['login'] && $password === $searching['password'])return true;
-            else {
-                throw new \Exception(' Данные не найдены');
-            }// допилить вывод ошибки
+        $this->login = $searching['login'];
+        $this->password = $searching['password'];
 
     }
-
-
 }

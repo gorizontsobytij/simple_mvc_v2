@@ -52,9 +52,17 @@ class IndexController extends core\Controller
                 $filter = new lib\Filter();
                 $this->_filtered_auth_data = $filter->dataFiltration($_POST);
                 $search = new models\IndexModel();
-                if ($search->searchLogSQL($this->_filtered_auth_data) === true)
-                    echo "Привет " .$this->_filtered_auth_data['login'];//тут конечно же придумать что-то поумнее
 
+                $search->searchLogSQL($this->_filtered_auth_data);
+
+                if ($search->login === $this->_filtered_auth_data['login']
+                    && $search->password === $this->_filtered_auth_data['password']){
+                    echo "Привет " .$this->_filtered_auth_data['login'];//тут конечно же придумать что-то поумнее
+                }
+
+                else {
+                    throw new \Exception(' Данные не найдены');
+                }
             }
         } catch (\Exception $exception) {
             echo 'Возникла ошибка' . $exception->getMessage();
